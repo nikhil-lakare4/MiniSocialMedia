@@ -21,11 +21,8 @@ public class MainServer {
     public static void main(String args[]) {
 
         // The default port number.
-        int portNumber = 1080;
-        /*
-         * Open a server socket on the portNumber (default 2222). Note that we can
-         * not choose a port less than 1023 if we are not privileged users (root).
-         */
+        int portNumber = 8180;
+        
         try {
             serverSocket = new ServerSocket(portNumber);
         } catch (IOException e) {
@@ -60,15 +57,6 @@ public class MainServer {
     }
 }
 
-/*
- * The chat client thread. This client thread opens the input and the output
- * streams for a particular client, ask the client's name, informs all the
- * clients connected to the server about the fact that a new client has joined
- * the chat room, and as long as it receive data, echos that data back to all
- * other clients. The thread broadcast the incoming messages to all clients and
- * routes the private message to the particular client. When a client leaves the
- * chat room this thread informs also all the clients about that and terminates.
- */
 class clientThread extends Thread {
 
     private String clientName = null;
