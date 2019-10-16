@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+<BorderPane xmlns:fx="http://javafx.com/fxml/1" prefHeight="200.0" prefWidth="200.0"
+            style="-fx-background-color: #424242;" xmlns="http://javafx.com/javafx/10.0.1"
+            fx:controller="MainView.ChatController">
+    <top>
+        <HBox prefHeight="50.0" prefWidth="335.0" BorderPane.alignment="CENTER">
+            <children>
+                <Label text="Online Friends" textFill="WHITE">
+                    <font>
+                        <Font size="24.0"/>
+                    </font>
+                    <HBox.margin>
+                        <Insets left="10.0" top="10.0"/>
+                    </HBox.margin>
+                </Label>
+            </children>
+        </HBox>
+    </top>
+    <bottom>
+        <HBox alignment="CENTER_RIGHT" prefHeight="50.0" prefWidth="336.0" BorderPane.alignment="CENTER">
+            <BorderPane.margin>
+                <Insets right="10.0"/>
+            </BorderPane.margin>
+        </HBox>
+    </bottom>
+    <center>
+        <ListView fx:id="friendListView" prefHeight="300.0" prefWidth="335.0" style="-fx-background-color: #212121;"
+                  BorderPane.alignment="CENTER"/>
+    </center>
+</BorderPane>
