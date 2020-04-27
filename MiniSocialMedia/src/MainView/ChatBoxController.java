@@ -26,181 +26,188 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
 import java.util.Scanner;
 
+import MainView.Encryption.DES;
+
 import static MainView.Main.socket;
 
 public class ChatBoxController {
 
-    public String currentFriend;
+	public String currentFriend;
 
-    @FXML
-    private ScrollPane scrollPane;
-    @FXML
-    private Label friendName;
-    @FXML
-    private TextField textField;
-    @FXML
-    private VBox vBox;
+	@FXML
+	private ScrollPane scrollPane;
+	@FXML
+	private Label friendName;
+	@FXML
+	private TextField textField;
+	@FXML
+	private VBox vBox;
 
-    public void initialize() {
+	String key = null;;
+	DES des = null;
 
-        currentFriend = ChatController.friendName;
-        friendName.setText(currentFriend);
+	public void initialize() {
 
-        Text text, time;
-        try {
-            File textFile = new File("C:\\MSMData\\" + HomeController.userId + "\\chats\\" + currentFriend + ".txt");
-            textFile.getParentFile().mkdirs();
-            textFile.createNewFile();
-            Scanner s = new Scanner(textFile);
-            s.useDelimiter("\n");
-            while (s.hasNext()) {
-                HBox hBox = new HBox();
-                hBox.setPadding(new Insets(10, 20, 10, 20));
-                if (s.next().equals("R")) {
-                    hBox.setAlignment(Pos.CENTER_RIGHT);
-                } else {
-                    hBox.setAlignment(Pos.CENTER_LEFT);
-                }
-                text = new Text(s.next());
-                text.setFill(Color.WHITE);
-                text.setFont(Font.font(20));
-                time = new Text(s.next());
-                time.setFill(Color.DARKGREY);
-                time.setFont(Font.font(10));
-                HBox.setMargin(time, new Insets(12, 0, 0, 10));
-                HBox textBox = new HBox();
-                textBox.setStyle("-fx-background-color: #2962FF; -fx-background-radius: 10");
-                textBox.setPadding(new Insets(0, 10, 5, 10));
-                textBox.setMaxWidth(scrollPane.getPrefWidth() / 2);
-                textBox.getChildren().addAll(text, time);
-                hBox.getChildren().add(textBox);
-                vBox.getChildren().add(hBox);
+		key = "QWERTYUI";
+		des = new DES();
 
-            }
-            s.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+		currentFriend = ChatController.friendName;
+		friendName.setText(currentFriend);
 
-        vBox.heightProperty().addListener(new ChangeListener<Number>() {
-            @Override
-            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                scrollPane.setVvalue(1.0);
-            }
-        });
+		Text text, time;
+		try {
+			File textFile = new File("C:\\MSMData\\" + HomeController.userId + "\\chats\\" + currentFriend + ".txt");
+			textFile.getParentFile().mkdirs();
+			textFile.createNewFile();
+			Scanner s = new Scanner(textFile);
+			s.useDelimiter("\n");
+			while (s.hasNext()) {
+				HBox hBox = new HBox();
+				hBox.setPadding(new Insets(10, 20, 10, 20));
+				if (s.next().equals("R")) {
+					hBox.setAlignment(Pos.CENTER_RIGHT);
+				} else {
+					hBox.setAlignment(Pos.CENTER_LEFT);
+				}
+				text = new Text(des.decryptText(s.next(), key));
+				text.setFill(Color.WHITE);
+				text.setFont(Font.font(20));
+				time = new Text(des.decryptText(s.next(), key));
+				time.setFill(Color.DARKGREY);
+				time.setFont(Font.font(10));
+				HBox.setMargin(time, new Insets(12, 0, 0, 10));
+				HBox textBox = new HBox();
+				textBox.setStyle("-fx-background-color: #2962FF; -fx-background-radius: 10");
+				textBox.setPadding(new Insets(0, 10, 5, 10));
+				textBox.setMaxWidth(scrollPane.getPrefWidth() / 2);
+				textBox.getChildren().addAll(text, time);
+				hBox.getChildren().add(textBox);
+				vBox.getChildren().add(hBox);
 
-        textField.setOnKeyPressed(new EventHandler<KeyEvent>() {
-            @Override
-            public void handle(KeyEvent ke) {
-                if (ke.getCode().equals(KeyCode.ENTER)) {
-                    onSend();
-                }
-            }
-        });
+			}
+			s.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 
-        ReadTextThread readTextThread = new ReadTextThread();
-        readTextThread.start();
-    }
+		vBox.heightProperty().addListener(new ChangeListener<Number>() {
+			@Override
+			public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+				scrollPane.setVvalue(1.0);
+			}
+		});
 
-    @FXML
-    public void onSend() {
+		textField.setOnKeyPressed(new EventHandler<KeyEvent>() {
+			@Override
+			public void handle(KeyEvent ke) {
+				if (ke.getCode().equals(KeyCode.ENTER)) {
+					onSend();
+				}
+			}
+		});
 
-        try {
-            FileWriter fw = new FileWriter("C:\\MSMData\\" + HomeController.userId + "\\chats\\" + currentFriend + ".txt", true);
-            fw.write("R" + "\n");
-            fw.write(textField.getText() + "\n");
-            fw.write(LocalTime.now().format(DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT)) + "\n");
-            fw.close();
-        } catch (Exception e) {
-            System.out.println(e);
-        }
+		ReadTextThread readTextThread = new ReadTextThread();
+		readTextThread.start();
+	}
 
-        Text text = new Text(textField.getText());
-        text.setFill(Color.WHITE);
-        text.setFont(Font.font(20));
-        Text time = new Text(LocalTime.now().format(DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT)));
-        time.setFill(Color.DARKGRAY);
-        time.setFont(Font.font(10));
-        HBox.setMargin(time, new Insets(12, 0, 0, 10));
-        HBox textBox = new HBox();
-        textBox.setStyle("-fx-background-color: #2962FF; -fx-background-radius: 10");
-        textBox.setPadding(new Insets(0, 10, 5, 10));
-        textBox.setMaxWidth(scrollPane.getPrefWidth() / 2);
-        textBox.getChildren().addAll(text, time);
-        HBox hBox = new HBox();
-        hBox.setAlignment(Pos.CENTER_RIGHT);
-        hBox.setPadding(new Insets(10, 20, 10, 20));
-        hBox.getChildren().add(textBox);
-        vBox.getChildren().add(hBox);
+	@FXML
+	public void onSend() {
 
-        try {
-            socket.getDout().writeUTF("sendText");
-            socket.getDout().writeUTF(currentFriend);
-            socket.getDout().writeUTF(textField.getText());
-            socket.getDout().writeUTF(time.getText());
+		try {
+			FileWriter fw = new FileWriter(
+					"C:\\MSMData\\" + HomeController.userId + "\\chats\\" + currentFriend + ".txt", true);
+			fw.write("R" + "\n");
+			fw.write(des.encryptText(textField.getText(), key)+"\n");
+			fw.write(des.encryptText(LocalTime.now().format(DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT)), key)+"\n");
+			fw.close();
+		} catch (Exception e) {
+			System.out.println(e);
+		}
 
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        textField.clear();
-    }
+		Text text = new Text(textField.getText());
+		text.setFill(Color.WHITE);
+		text.setFont(Font.font(20));
+		Text time = new Text(LocalTime.now().format(DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT)));
+		time.setFill(Color.DARKGRAY);
+		time.setFont(Font.font(10));
+		HBox.setMargin(time, new Insets(12, 0, 0, 10));
+		HBox textBox = new HBox();
+		textBox.setStyle("-fx-background-color: #2962FF; -fx-background-radius: 10");
+		textBox.setPadding(new Insets(0, 10, 5, 10));
+		textBox.setMaxWidth(scrollPane.getPrefWidth() / 2);
+		textBox.getChildren().addAll(text, time);
+		HBox hBox = new HBox();
+		hBox.setAlignment(Pos.CENTER_RIGHT);
+		hBox.setPadding(new Insets(10, 20, 10, 20));
+		hBox.getChildren().add(textBox);
+		vBox.getChildren().add(hBox);
 
-    public class ReadTextThread extends Thread {
+		try {
+			socket.getDout().writeUTF("sendText");
+			socket.getDout().writeUTF(des.encryptText(currentFriend, key));
+			socket.getDout().writeUTF(des.encryptText(textField.getText(), key));
+			socket.getDout().writeUTF(des.encryptText(time.getText(), key));
 
-        public void run() {
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		textField.clear();
+	}
 
-            while (true) {
+	public class ReadTextThread extends Thread {
 
-                try {
-                    // read the message sent to this client
-                    String receivedText = socket.getDin().readUTF();
-                    String receivedTime = socket.getDin().readUTF();
+		public void run() {
 
-                    if (receivedText.equals("null") && receivedTime.equals("null"))
-                        break;
+			while (true) {
 
-                    try {
-                        FileWriter fw = new FileWriter("C:\\MSMData\\" + HomeController.userId + "\\chats\\" + currentFriend + ".txt", true);
-                        fw.write("L" + "\n");
-                        fw.write(receivedText + "\n");
-                        fw.write(receivedTime + "\n");
-                        fw.close();
-                    } catch (Exception e) {
-                        System.out.println(e);
-                    }
+				try {
+					// read the message sent to this client
+					String receivedText = socket.getDin().readUTF();
+					String receivedTime = socket.getDin().readUTF();
 
-                    Platform.runLater(new Runnable() {
-                        @Override
-                        public void run() {
-                            // Update UI here.
-                            Text text = new Text(receivedText);
-                            text.setFill(Color.WHITE);
-                            text.setFont(Font.font(20));
-                            Text time = new Text(receivedTime);
-                            time.setFill(Color.DARKGRAY);
-                            time.setFont(Font.font(10));
-                            HBox.setMargin(time, new Insets(12, 0, 0, 10));
-                            HBox textBox = new HBox();
-                            textBox.setStyle("-fx-background-color: #2962FF; -fx-background-radius: 10");
-                            textBox.setPadding(new Insets(0, 10, 5, 10));
-                            textBox.setMaxWidth(scrollPane.getPrefWidth() / 2);
-                            textBox.getChildren().addAll(text, time);
-                            HBox hBox = new HBox();
-                            hBox.setAlignment(Pos.CENTER_LEFT);
-                            hBox.setPadding(new Insets(10, 20, 10, 20));
-                            hBox.getChildren().add(textBox);
-                            vBox.getChildren().add(hBox);
-                        }
-                    });
+					if (receivedText.equals("null") && receivedTime.equals("null"))
+						break;
 
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            System.out.println("Thread Killed!");
-        }
-    }
+					try {
+						FileWriter fw = new FileWriter(
+								"C:\\MSMData\\" + HomeController.userId + "\\chats\\" + currentFriend + ".txt", true);
+						fw.write("L" + "\n");
+						fw.write(receivedText + "\n");
+						fw.write(receivedTime + "\n");
+						fw.close();
+					} catch (Exception e) {
+						System.out.println(e);
+					}
+
+					Platform.runLater(new Runnable() {
+						@Override
+						public void run() {
+							// Update UI here.
+							Text text = new Text(des.decryptText(receivedText,key));
+							text.setFill(Color.WHITE);
+							text.setFont(Font.font(20));
+							Text time = new Text(des.decryptText(receivedTime, key));
+							time.setFill(Color.DARKGRAY);
+							time.setFont(Font.font(10));
+							HBox.setMargin(time, new Insets(12, 0, 0, 10));
+							HBox textBox = new HBox();
+							textBox.setStyle("-fx-background-color: #2962FF; -fx-background-radius: 10");
+							textBox.setPadding(new Insets(0, 10, 5, 10));
+							textBox.setMaxWidth(scrollPane.getPrefWidth() / 2);
+							textBox.getChildren().addAll(text, time);
+							HBox hBox = new HBox();
+							hBox.setAlignment(Pos.CENTER_LEFT);
+							hBox.setPadding(new Insets(10, 20, 10, 20));
+							hBox.getChildren().add(textBox);
+							vBox.getChildren().add(hBox);
+						}
+					});
+
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+			System.out.println("Thread Killed!");
+		}
+	}
 }
-
-
-
