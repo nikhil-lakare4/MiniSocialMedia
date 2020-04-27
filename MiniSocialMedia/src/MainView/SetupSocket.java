@@ -20,7 +20,7 @@ public class SetupSocket {
     }
 
     private SetupSocket() throws Exception {
-        S = new Socket("localhost", 1080);
+        S = new Socket("localhost", 8087);
         Din = new DataInputStream(S.getInputStream());
         Dout = new DataOutputStream(S.getOutputStream());
         System.out.println("Socket Created Successfully!");
