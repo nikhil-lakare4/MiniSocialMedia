@@ -21,13 +21,15 @@ public class MainServer {
     public static void main(String args[]) {
 
         // The default port number.
-        int portNumber = 8180;
+        int portNumber = 8087;
         
         try {
             serverSocket = new ServerSocket(portNumber);
         } catch (IOException e) {
             System.out.println(e);
         }
+
+        System.out.println("Server is running at "+portNumber);
 
         /*
          * Create a client socket for each connection and pass it to a new client
@@ -119,9 +121,12 @@ class clientThread extends Thread {
                             System.out.println(clientName + " signed in!");
                             sql = "UPDATE USERINFO SET STATUS = 'online' where USERNAME = '"+clientName+"'";
                             if (st.executeUpdate(sql) == 1) {
+                                st.executeUpdate("commit;");
                                 System.out.println(clientName + " is online!");
                             }
                         }
+
+                        
 
                         Dout.writeBoolean(permission);
                         rs.close();
@@ -152,8 +157,10 @@ class clientThread extends Thread {
                                 "'" + username + "', '" + password + "', '" + birthdate + "', '" + about + "', '" + gender + "'," +
                                 " '" + dateOfSignUp + "', '" + dpPath + "', '"+status+"')";
 
-                        if(st.executeUpdate(sql) == 1)
+                        if(st.executeUpdate(sql) == 1){
                             permission = true;
+                            st.executeUpdate("commit;");
+                        }
 
                         Dout.writeBoolean(permission);
 
@@ -222,6 +229,7 @@ class clientThread extends Thread {
 
                     String sql = "UPDATE USERINFO SET STATUS = 'offline' where USERNAME = '"+clientName+"'";
                     if(st.executeUpdate(sql) == 1) {
+                        st.executeUpdate("commit;");
                         System.out.println(clientName + " is offline!");
                     }
                     break;
