@@ -15,6 +15,8 @@ import javafx.scene.paint.Color;
 
 import java.io.IOException;
 
+import MainView.Encryption.DES;
+
 import static MainView.Main.*;
 
 public class SignInController {
@@ -28,8 +30,13 @@ public class SignInController {
     private PasswordField passWord;
     @FXML
     private Label label;
+    
+    String key = null;;
+    DES des = null;
 
     public void initialize() throws IOException {
+    	key = "QWERTYUI";
+    	des = new DES();
         FXMLLoader loader = new FXMLLoader();
         loader.setLocation(getClass().getResource("Home.fxml"));
         homeLayout = loader.load();
@@ -66,9 +73,12 @@ public class SignInController {
     public void onSignIn() throws Exception {
 
         socket.getDout().writeUTF("signIn");
-
-        socket.getDout().writeUTF(userName.getText());
-        socket.getDout().writeUTF(passWord.getText());
+        
+        String key = "QWERTYUI";
+        DES des = new DES();
+        
+        socket.getDout().writeUTF(des.encryptText(userName.getText().trim(), key));
+        socket.getDout().writeUTF(des.encryptText(passWord.getText().trim(), key));
 
         boolean permission = socket.getDin().readBoolean();
 
@@ -89,12 +99,11 @@ public class SignInController {
         primaryStage.show();
 
         socket.getDout().writeUTF("loadHome");
-        socket.getDout().writeUTF(userId);
+        socket.getDout().writeUTF(des.encryptText(userId, key));
 
         homeController.userId = userId;
-        homeController.first_name = socket.getDin().readUTF();
-        homeController.dpPath = socket.getDin().readUTF();
-
+        homeController.first_name = des.decryptText(socket.getDin().readUTF(), key);
+        homeController.dpPath = des.decryptText(socket.getDin().readUTF(), key);
         homeController.homeLabel.setText(homeController.first_name);
         Image image = new Image(homeController.dpPath);
         homeController.imageView.setImage(image);

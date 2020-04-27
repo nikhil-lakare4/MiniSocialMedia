@@ -12,6 +12,8 @@ import java.io.File;
 import java.io.IOException;
 import java.time.LocalDate;
 
+import MainView.Encryption.DES;
+
 import static MainView.Main.socket;
 
 public class SignUpController {
@@ -40,8 +42,15 @@ public class SignUpController {
     private TextField about;
 
     private String dpPath;
+    
+    String key = null;
+    DES des = null;
 
     public void initialize() throws Exception {
+    	
+    	key = "QWERTYUI";
+    	des = new DES();
+    	
         File file = new File("C:\\Users\\Nikhil Lakare\\Pictures\\signupicon.png");
         Image image = new Image(file.toURI().toString());
         imageID.setImage(image);
@@ -66,20 +75,20 @@ public class SignUpController {
 
         socket.getDout().writeUTF("signUp");
 
-        socket.getDout().writeUTF(first_name.getText().trim());
-        socket.getDout().writeUTF(last_name.getText());
-        socket.getDout().writeUTF(email_id.getText());
-        socket.getDout().writeUTF(contact_no.getText());
-        socket.getDout().writeUTF(username.getText());
-        socket.getDout().writeUTF(password.getText());
-        socket.getDout().writeUTF(cpassword.getText());
-        socket.getDout().writeUTF(birthday.getText());
-        socket.getDout().writeUTF(gender.getText());
-        socket.getDout().writeUTF(about.getText());
+        socket.getDout().writeUTF(des.encryptText(first_name.getText(), key));
+        socket.getDout().writeUTF(des.encryptText(last_name.getText(), key));
+        socket.getDout().writeUTF(des.encryptText(email_id.getText(), key));
+        socket.getDout().writeUTF(des.encryptText(contact_no.getText(), key));
+        socket.getDout().writeUTF(des.encryptText(username.getText(), key));
+        socket.getDout().writeUTF(des.encryptText(password.getText(), key));
+        socket.getDout().writeUTF(des.encryptText(cpassword.getText(), key));
+        socket.getDout().writeUTF(des.encryptText(birthday.getText(), key));
+        socket.getDout().writeUTF(des.encryptText(gender.getText(), key));
+        socket.getDout().writeUTF(des.encryptText(about.getText(), key));
 
         LocalDate dateOfSignUp = LocalDate.now();
-        socket.getDout().writeUTF(dateOfSignUp.toString());
-        socket.getDout().writeUTF(dpPath);
+        socket.getDout().writeUTF(des.encryptText(dateOfSignUp.toString(), key));
+        socket.getDout().writeUTF(des.encryptText(dpPath, key));
 
         if (socket.getDin().readBoolean()) {
             Alert alert = new Alert(Alert.AlertType.INFORMATION);

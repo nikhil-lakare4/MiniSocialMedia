@@ -13,6 +13,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import MainView.Encryption.DES;
+
 import static MainView.Main.homeLayout;
 import static MainView.Main.socket;
 
@@ -23,14 +25,20 @@ public class ChatController {
     public BorderPane chatBoxLayout;
     @FXML
     public ListView<String> friendListView;
+    
+    String key = null;;
+    DES des = null;
 
     public void initialize() throws IOException {
+    	
+    	key = "QWERTYUI";
+    	des = new DES();
 
         List<String> friendList = new ArrayList<>();
         socket.getDout().writeUTF("getOnlineFriends");
         int num = socket.getDin().readInt();
         for (int i = 0; i < num; i++) {
-            friendList.add(socket.getDin().readUTF());
+            friendList.add(des.decryptText(socket.getDin().readUTF(), key));
         }
         ObservableList<String> list = FXCollections.observableList(friendList);
         friendListView.setItems(list);
