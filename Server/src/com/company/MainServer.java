@@ -83,11 +83,11 @@ class clientThread extends Thread {
             Din = new DataInputStream(clientSocket.getInputStream());
             Dout = new DataOutputStream(clientSocket.getOutputStream());
 
-            String url = "jdbc:oracle:thin:@localhost:1521:xe";
-            String user = "DarkKnight532";
-            String pass = "DarkKnight";
+            String url = "jdbc:mysql://localhost:3306/mydb";
+            String user = "root";
+            String pass = "mysql";
 
-            DriverManager.registerDriver(new oracle.jdbc.OracleDriver());
+            Class.forName("com.mysql.jdbc.Driver"); 
             Connection con = DriverManager.getConnection(url, user, pass);
             Statement st = con.createStatement();
 
